@@ -26,7 +26,7 @@ export default {
     },
     {
       name: "Customers",
-      url: "/clients",
+      url: "/customers",
       icon: "icon-people"
     },
     {
