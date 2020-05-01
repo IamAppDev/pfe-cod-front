@@ -1,9 +1,5 @@
 import React, { Component } from 'react';
 import MaterialTable, { MTableToolbar } from 'material-table';
-// import Chip from '@material-ui/core/Chip';
-// import Icon from '@material-ui/core/Icon';
-// import AddCircleIcon from '@material-ui/icons/AddCircle';
-// import RefreshIcon from '@material-ui/icons/Refresh';
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider as MuiThemeProvider } from '@material-ui/core/styles';
 import RefreshRoundedIcon from '@material-ui/icons/RefreshRounded';
@@ -20,7 +16,7 @@ import Swal from 'sweetalert2/src/sweetalert2.js';
 
 //
 import axios from '../../../utils/axios';
-import cities from '../../../utils/cities';
+import cities from '../../../utils/enums/cities';
 
 class Users extends Component {
 	constructor(props) {
@@ -58,7 +54,7 @@ class Users extends Component {
 							hidden: true
 						},
 						{
-							title: 'Role',
+							title: 'Role *',
 							field: 'roleLibelle',
 							lookup: { ROLE_OPERATOR: 'Operator', ROLE_DELIVERYMAN: 'Delivery Man' },
 							editable: 'onAdd',
@@ -73,11 +69,11 @@ class Users extends Component {
 								);
 							}
 						},
-						{ title: 'First Name', field: 'firstName' },
-						{ title: 'Last Name', field: 'lastName' },
-						{ title: 'Email', field: 'email' },
+						{ title: 'First Name *', field: 'firstName' },
+						{ title: 'Last Name *', field: 'lastName' },
+						{ title: 'Email *', field: 'email' },
 						{
-							title: 'City',
+							title: 'City *',
 							field: 'city',
 							editComponent: (field) => {
 								return (
