@@ -72,6 +72,7 @@ class Login extends Component {
 						default:
 							MySwal.fire({ text: 'Internal Server Error !', icon: 'error' });
 					}
+					console.log(err.response.statusText);
 				} else {
 					MySwal.fire({ text: 'Network Error !', icon: 'error' });
 				}

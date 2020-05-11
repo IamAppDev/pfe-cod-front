@@ -1,6 +1,18 @@
 import React, { Component } from 'react';
-import { Badge, UncontrolledDropdown, DropdownItem, DropdownMenu, DropdownToggle, Nav } from 'reactstrap';
+import {
+	Badge,
+	UncontrolledDropdown,
+	DropdownItem,
+	DropdownMenu,
+	DropdownToggle,
+	Nav,
+	NavItem,
+	NavLink
+} from 'reactstrap';
 import PropTypes from 'prop-types';
+
+import { connect } from 'react-redux';
+import * as actionCreators from '../../store/actions/index';
 
 import { AppNavbarBrand, AppSidebarToggler } from '@coreui/react';
 import logo from '../../assets/img/brand/logo.svg';
@@ -21,7 +33,6 @@ class DefaultHeader extends Component {
 	render() {
 		// eslint-disable-next-line
 		const { children, ...attributes } = this.props;
-
 		return (
 			<React.Fragment>
 				<AppSidebarToggler className='d-lg-none' display='md' mobile />
@@ -32,9 +43,20 @@ class DefaultHeader extends Component {
 				<AppSidebarToggler className='d-md-down-none' display='lg' />
 
 				<Nav className='ml-auto mr-4' navbar>
+					<Badge color='secondary'>
+						<h6>{this.props.email}</h6>
+					</Badge>
 					<UncontrolledDropdown nav direction='down'>
 						<DropdownToggle nav>
-							<img src={'../../assets/img/avatars/6.jpg'} className='img-avatar' alt='admin@bootstrapmaster.com' />
+							<img
+								src={
+									this.props.role === 'ROLE_ADMIN'
+										? require('../../assets/img/admin.png')
+										: require('../../assets/img/support.png')
+								}
+								className='img-avatar'
+								alt='admin'
+							/>
 						</DropdownToggle>
 						<DropdownMenu right>
 							<DropdownItem header tag='div' className='text-center'>
@@ -91,4 +113,13 @@ class DefaultHeader extends Component {
 DefaultHeader.propTypes = propTypes;
 DefaultHeader.defaultProps = defaultProps;
 
-export default DefaultHeader;
+const mapDispatchToProps = (dispatch) => {
+	return {
+		logout: () => {
+			dispatch(actionCreators.logout());
+		}
+	};
+};
+
+export default connect(null, mapDispatchToProps)(DefaultHeader);
+// export default DefaultHeader;

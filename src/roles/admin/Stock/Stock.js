@@ -48,12 +48,9 @@ class Stock extends Component {
 	}
 
 	affectQuantity = async (event, product, affected) => {
-		console.log('product id : ' + product.id);
-		console.log('affectedId id : ' + affected.id);
 		const { value: quantity } = await Swal.fire({
 			text: 'Enter quanity',
 			input: 'number',
-			min: '0',
 			heightAuto: true
 		});
 		if (quantity <= 0) {
@@ -66,6 +63,7 @@ class Stock extends Component {
 				text: `You inserted ${quantity} but you have only ${product.quantity} of ${product.name} !`,
 				icon: 'error'
 			});
+		} else if (!quantity) {
 		} else {
 			this.setState({
 				isLoading: true
@@ -83,8 +81,8 @@ class Stock extends Component {
 					Swal.fire({
 						text: `${quantity} of ${product.name} moved to ${affected.firstName} ${affected.lastName} at ${affected.city} !`,
 						icon: 'success'
-          });
-          this.tableRef.current.onQueryChange();
+					});
+					this.tableRef.current.onQueryChange();
 				})
 				.catch(() => {
 					this.setState({
@@ -114,7 +112,7 @@ class Stock extends Component {
 							{ title: 'Name *', field: 'name' },
 							{ title: 'Price *', field: 'price', type: 'numeric' },
 							{ title: 'Quantity *', field: 'quantity', type: 'numeric' },
-							{ title: 'Weight', field: 'weight', type: 'numeric' },
+							{ title: 'Weight(g)', field: 'weight', type: 'numeric' },
 							{
 								title: 'Size',
 								field: 'size',
@@ -174,18 +172,28 @@ class Stock extends Component {
 							exportFileName: 'customers',
 							pageSize: 5,
 							pageSizeOptions: [5, 10, 20, 50, 100],
-							sorting: false,
+							filtering: true,
+							sorting: true,
 							actionsColumnIndex: -1
 						}}
 						data={(query) =>
 							new Promise((resolve, reject) => {
+								//
+								// console.log(query);
+								if (query.orderBy) {
+									console.log(query.orderBy.field);
+									console.log(query.orderDirection);
+								}
+								// console.log(query.filters);
+								for (let filter of query.filters){
+									console.log(filter.column.field, filter.value);
+								}
+								//
 								const offset = query.page * query.pageSize;
 								const limit = query.pageSize;
 								axios
 									.get(`/admin/products/getAll/${offset}/${limit}`)
 									.then((res) => {
-										// console.log(res.data);
-										// console.log(res.data.usersStock);
 										resolve({
 											data: res.data.productList,
 											page: query.page,
@@ -204,7 +212,9 @@ class Stock extends Component {
 						editable={{
 							onRowAdd: (newData) =>
 								new Promise((resolve, reject) => {
-									console.log(newData);
+									if (newData.weight === '') {
+										delete newData.weight;
+									}
 									schemaAdd.isValid(newData).then(function (valid) {
 										if (valid) {
 											removeExtraSpaces(newData, 'name');
@@ -242,8 +252,11 @@ class Stock extends Component {
 								}),
 							onRowUpdate: (newData, oldData) =>
 								new Promise((resolve, reject) => {
+									if (newData.weight === '') {
+										delete newData.weight;
+									}
 									schemaUpdate.isValid(newData).then(function (valid) {
-										delete newData.stocks;
+										delete newData.theStock;
 										delete newData.createdAt;
 										if (valid) {
 											removeExtraSpaces(newData, 'name');
@@ -307,50 +320,64 @@ class Stock extends Component {
 						detailPanel={(rowData) => {
 							return (
 								<div width='100%'>
-									<TableContainer component={Paper}>
-										<Table
-											style={{ width: '80%', margin: 'auto', marginTop: '20px', marginBottom: '20px' }}
-											size='small'
-											aria-label='a dense table'
+									{rowData.theStock.length === 0 ? (
+										<p
+											style={{
+												width: '80%',
+												margin: 'auto',
+												marginTop: '40px',
+												marginBottom: '40px',
+												textAlign: 'center'
+											}}
 										>
-											<TableHead>
-												<TableRow>
-													<TableCell align='center'></TableCell>
-													<TableCell align='center'>Full Name</TableCell>
-													<TableCell align='center'>City</TableCell>
-													<TableCell align='center'>Quantity</TableCell>
-													<TableCell align='center'>Action</TableCell>
-												</TableRow>
-											</TableHead>
-											<TableBody>
-												{rowData.theStock.map((row) => (
-													<TableRow key={row.id}>
-														<TableCell>
-															<img
-																style={{ height: 36, borderRadius: '50%' }}
-																src={require('../../../assets/img/delivery-man.png')}
-															/>
-														</TableCell>
-														<TableCell component='th' scope='row' align='center'>
-															{row.firstName + ' ' + row.lastName}
-														</TableCell>
-														<TableCell align='center'>{row.city}</TableCell>
-														<TableCell align='center'>{row.quantity}</TableCell>
-														<TableCell align='center'>
-															<Button
-																onClick={(event) => this.affectQuantity(event, rowData, row)}
-																size='small'
-																variant='contained'
-																color='default'
-															>
-																+
-															</Button>
-														</TableCell>
+											<strong>You don't have delivery mans !</strong>
+										</p>
+									) : (
+										<TableContainer component={Paper}>
+											<Table
+												style={{ width: '80%', margin: 'auto', marginTop: '20px', marginBottom: '20px' }}
+												size='small'
+												aria-label='a dense table'
+											>
+												<TableHead>
+													<TableRow>
+														<TableCell align='center'></TableCell>
+														<TableCell align='center'>Full Name</TableCell>
+														<TableCell align='center'>City</TableCell>
+														<TableCell align='center'>Quantity</TableCell>
+														<TableCell align='center'>Action</TableCell>
 													</TableRow>
-												))}
-											</TableBody>
-										</Table>
-									</TableContainer>
+												</TableHead>
+												<TableBody>
+													{rowData.theStock.map((row) => (
+														<TableRow key={row.id}>
+															<TableCell>
+																<img
+																	style={{ height: 36, borderRadius: '50%' }}
+																	src={require('../../../assets/img/delivery-man.png')}
+																/>
+															</TableCell>
+															<TableCell component='th' scope='row' align='center'>
+																{row.firstName + ' ' + row.lastName}
+															</TableCell>
+															<TableCell align='center'>{row.city}</TableCell>
+															<TableCell align='center'>{row.quantity}</TableCell>
+															<TableCell align='center'>
+																<Button
+																	onClick={(event) => this.affectQuantity(event, rowData, row)}
+																	size='small'
+																	variant='contained'
+																	color='default'
+																>
+																	+
+																</Button>
+															</TableCell>
+														</TableRow>
+													))}
+												</TableBody>
+											</Table>
+										</TableContainer>
+									)}
 								</div>
 							);
 						}}
@@ -379,18 +406,6 @@ class Stock extends Component {
 		);
 	}
 }
-
-function createData(name, calories, fat, carbs, protein) {
-	return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-	createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-	createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-	createData('Eclair', 262, 16.0, 24, 6.0),
-	createData('Cupcake', 305, 3.7, 67, 4.3),
-	createData('Gingerbread', 356, 16.0, 49, 3.9)
-];
 
 const schemaAdd = Yup.object().shape({
 	name: Yup.string().required(),

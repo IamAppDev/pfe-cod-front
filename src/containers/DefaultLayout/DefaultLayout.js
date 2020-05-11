@@ -29,6 +29,8 @@ class DefaultLayout extends Component {
 	// loading = () => <div className='animated fadeIn pt-1 text-center'>Loading...</div>;
 
 	render() {
+		const roleNavigation = this.props.role === 'ROLE_ADMIN' ? adminNavigation : operatorNavigation;
+		const roleRoutes = this.props.role === 'ROLE_ADMIN' ? adminRoutes : operatorRoutes;
 		return (
 			<div className='app'>
 				<AppHeader fixed>
@@ -41,7 +43,7 @@ class DefaultLayout extends Component {
 						<AppSidebarHeader />
 						<AppSidebarForm />
 						<Suspense>
-							<AppSidebarNav navConfig={adminNavigation} /*{...this.props}*/ router={router} />
+							<AppSidebarNav navConfig={roleNavigation} {...this.props} router={router} />
 						</Suspense>
 						<AppSidebarFooter />
 						<AppSidebarMinimizer />
@@ -50,7 +52,7 @@ class DefaultLayout extends Component {
 						<Container className='mt-3' fluid>
 							<Suspense fallback={<Loading />}>
 								<Switch>
-									{adminRoutes.map((route, idx) => {
+									{roleRoutes.map((route, idx) => {
 										return route.component ? (
 											<Route
 												key={idx}
@@ -77,12 +79,21 @@ class DefaultLayout extends Component {
 	}
 }
 
-const mapDisptachToProps = (dispatch) => {
+const mapStateToProps = (state) => {
 	return {
-		logout: () => {
-			dispatch(actionCreators.logout());
-		}
+		role: state.sessionStore.role,
+		email: state.sessionStore.email,
+		logged: state.sessionStore.logged.toString()
 	};
 };
 
-export default connect(null, mapDisptachToProps)(DefaultLayout);
+// const mapDisptachToProps = (dispatch) => {
+// 	return {
+// 		logout: () => {
+// 			dispatch(actionCreators.logout());
+// 		}
+// 	};
+// };
+
+export default connect(mapStateToProps)(DefaultLayout);
+// export default DefaultLayout;
