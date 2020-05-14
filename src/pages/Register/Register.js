@@ -84,13 +84,6 @@ class Register extends Component {
 														} else {
 															MySwal.fire({ text: 'Network Error !', icon: 'error' });
 														}
-														// if (err.response.statusText === 'UniqueViolation') {
-														// 	MySwal.fire({ text: 'Email already exists !', icon: 'error' });
-														// } else if (err.response.statusText === 'DataNotValidated') {
-														// 	MySwal.fire({ text: 'Please check your input fields !', icon: 'error' });
-														// } else {
-														// 	MySwal.fire({ text: 'Internal Server Error !', icon: 'error' });
-														// }
 														setSubmitting(false);
 													});
 												window.grecaptcha.reset();
