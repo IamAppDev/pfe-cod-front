@@ -37,7 +37,7 @@ class SalesChannels extends Component {
 				{/* <MuiThemeProvider theme={this.theme}> */}
 				<MaterialTable
 					isLoading={this.state.isLoading}
-					title='User List'
+					title='Sales Channel List'
 					tableRef={this.tableRef}
 					columns={[
 						{

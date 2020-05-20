@@ -209,7 +209,7 @@ export class AddOrder extends Component {
 								});
 							}}
 							selected={this.state.products[i].id ? [this.state.products[i]] : []}
-							labelKey={(option) => `${option.name} [${option.price}]`}
+							labelKey={(option) => `${option.name} [${option.price} MAD]`}
 							options={this.state.productList}
 						/>
 					</Col>
