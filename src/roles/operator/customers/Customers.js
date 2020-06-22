@@ -87,7 +87,7 @@ class Customers extends Component {
 							sorting: true,
 							filtering: true,
 							actionsColumnIndex: -1,
-							actionsCellStyle: { display: 'flex', justifyContent: 'center', width: '100%' }
+							actionsCellStyle: { display: 'flex', padding: '10px',justifyContent: 'center', width: '100%' }
 						}}
 						data={(query) =>
 							new Promise((resolve, reject) => {

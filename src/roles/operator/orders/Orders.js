@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 // import ServerTable from 'react-strap-table';
 import MaterialTable from 'material-table';
 import RefreshRoundedIcon from '@material-ui/icons/RefreshRounded';
@@ -34,15 +34,80 @@ import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import LocalShippingIcon from '@material-ui/icons/LocalShipping';
 import SettingsIcon from '@material-ui/icons/Settings';
+//
+import { Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+//
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 class Orders extends Component {
 	constructor(props) {
 		super(props);
 
 		this.tableRef = React.createRef();
+
+		this.state = {
+			showUpdateState: false,
+			dm: [],
+			labelAutocomplete: 'Delivery Man',
+			orderStates: [],
+			selectedState: '',
+			description: '',
+			orderId: '',
+			deliverymanId: 0
+		};
 	}
 
+	handleShowUpdate = (orderState, orderId) => {
+		switch (orderState) {
+			case 'new':
+				this.setState({
+					labelAutocomplete: 'Order State',
+					orderStates: ['pending', 'canceled', 'confirmed'],
+					showUpdateState: true,
+					orderId
+				});
+				break;
+			case 'pending':
+				this.setState({
+					labelAutocomplete: 'Order State',
+					orderStates: ['canceled', 'confirmed'],
+					showUpdateState: true,
+					orderId
+				});
+				break;
+			default:
+				this.setState({
+					showUpdateState: true,
+					orderId
+				});
+		}
+	};
+
+	handleUpdateState = () => {
+		const orderObj = {
+			orderId: this.state.orderId,
+			orderState: this.state.selectedState,
+			description: this.state.description,
+			deliverymanId: this.state.deliverymanId
+		};
+		if (this.state.selectedState || this.state.deliverymanId) {
+			axios
+				.post('/operator/orders/update', orderObj)
+				.then(() => {
+					this.tableRef.current && this.tableRef.current.onQueryChange();
+				})
+				.catch((err) => {
+					console.log(err);
+				});
+		}
+	};
+
 	render() {
+		let example = null;
 		return (
 			<div>
 				<div style={{ maxWidth: '100%', marginBottom: '20px' }}>
@@ -98,15 +163,6 @@ class Orders extends Component {
 										.catch(() => {
 											reject();
 										});
-									// setTimeout(() => {
-									// 	{
-									// 		const data = this.state.data;
-									// 		const index = data.indexOf(oldData);
-									// 		data[index] = newData;
-									// 		this.setState({ data }, () => resolve());
-									// 	}
-									// 	resolve();
-									// }, 1000);
 								})
 						}}
 						data={(query) =>
@@ -132,7 +188,7 @@ class Orders extends Component {
 								axios
 									.get(`/operator/orders/getAll/${offset}/${limit}`, { params })
 									.then((res) => {
-										console.log(res);
+										// console.log(res);
 										resolve({
 											data: res.data.orderList,
 											page: query.page,
@@ -154,7 +210,7 @@ class Orders extends Component {
 								sum[row.id] = Math.trunc(row.product.price * row.quantity * (100 - row.discount) * 0.01);
 							}
 							return (
-								<div style={{ width: '80%', margin: 'auto', marginTop: '20px', marginBottom: '20px' }}>
+								<div style={{ width: '90%', margin: 'auto', marginTop: '20px', marginBottom: '20px' }}>
 									<ExpansionPanel>
 										<ExpansionPanelSummary
 											expandIcon={<ExpandMoreIcon />}
@@ -236,7 +292,7 @@ class Orders extends Component {
 										<ExpansionPanelDetails>
 											<TableContainer component={Paper}>
 												<Table
-													style={{ width: '80%', margin: 'auto', marginTop: '20px', marginBottom: '20px' }}
+													style={{ width: '90%', margin: 'auto', marginTop: '20px', marginBottom: '20px' }}
 													size='small'
 													aria-label='a dense table'
 												>
@@ -280,8 +336,71 @@ class Orders extends Component {
 																<TableCell align='center'>{row.description}</TableCell>
 															</TableRow>
 														))}
+
+														{this.state.showUpdateState ? (
+															<TableRow>
+																<TableCell></TableCell>
+																<TableCell></TableCell>
+																<TableCell>
+																	<Autocomplete
+																		id='combo-box-demo'
+																		options={this.state.orderStates}
+																		onChange={(event, val) => {
+																			this.setState({
+																				selectedState: val
+																			});
+																		}}
+																		// getOptionLabel={(option) => option.title}
+																		style={{ width: '300px', float: 'right' }}
+																		// style={{ height: '1em' }}
+																		renderInput={(params) => (
+																			<TextField
+																				// style={{ height: '100px' }}
+																				{...params}
+																				label={this.state.labelAutocomplete}
+																				variant='outlined'
+																			/>
+																		)}
+																	/>
+																</TableCell>
+																<TableCell>
+																	<TextField
+																		style={{ width: '200px', float: 'right' }}
+																		id='outlined-basic'
+																		label='Description'
+																		variant='outlined'
+																		onChange={(event) => {
+																			this.setState({
+																				description: event.target.value
+																			});
+																		}}
+																		value={this.state.description}
+																	/>
+																</TableCell>
+																<TableCell style={{ with: '150px' }}>
+																	<Button onClick={this.handleUpdateState} variant='contained' color='primary'>
+																		Validate
+																	</Button>
+																</TableCell>
+															</TableRow>
+														) : null}
 													</TableBody>
 												</Table>
+												{rowData.orderHistories[rowData.orderHistories.length - 1].orderState ===
+												('new' || 'pending' || 'confirmed') ? (
+													<Button
+														onClick={() =>
+															this.handleShowUpdate(
+																rowData.orderHistories[rowData.orderHistories.length - 1].orderState,
+																rowData.id
+															)
+														}
+														style={{ width: '20%', marginBottom: '10px', float: 'right' }}
+														variant='contained'
+													>
+														Add State
+													</Button>
+												) : null}
 											</TableContainer>
 										</ExpansionPanelDetails>
 									</ExpansionPanel>
@@ -302,15 +421,10 @@ class Orders extends Component {
 								tooltip: 'View Tracking',
 								isFreeAction: false,
 								onClick: (event, row) => {
-									fetch('https://apidojo-17track-v1.p.rapidapi.com/track?timeZoneOffset=0&codes=' + row.tracking, {
-										method: 'GET',
-										headers: {
-											'x-rapidapi-host': 'apidojo-17track-v1.p.rapidapi.com',
-											'x-rapidapi-key': '73f386492bmshf6334794dd62414p170ad8jsnbff091bb4cc2'
-										}
-									})
-										.then((response) => {
-											console.log(response);
+									axios
+										.get('/operator/orders/track', row.tracking)
+										.then((res) => {
+											console.log(res);
 										})
 										.catch((err) => {
 											console.log(err);
@@ -322,7 +436,15 @@ class Orders extends Component {
 							// 		return <SettingsIcon />;
 							// 	},
 							// 	tooltip: 'Update State',
-							// 	isFreeAction: false
+							// 	isFreeAction: false,
+							// 	onClick: (event, row) => {
+							// 		console.log('clicked ! ');
+							// 		example = row;
+							// 		this.setState({
+							// 			open: true,
+							// 			currentRow: row
+							// 		});
+							// 	}
 							// }
 						]}
 					/>
@@ -330,6 +452,30 @@ class Orders extends Component {
 			</div>
 		);
 	}
+
+	componentDidMount() {
+		axios
+			.get('/operator/orders/getDm')
+			.then((res) => {
+				this.setState({
+					dm: res.data
+				});
+			})
+			.catch(() => {
+				Swal.fire({
+					icon: 'error',
+					text: 'Internal Server Error. Data Not Loaded !'
+				});
+			});
+	}
 }
+
+const top100Films = [
+	{ title: 'The Shawshank Redemption', year: 1994 },
+	{ title: 'The Godfather', year: 1972 },
+	{ title: 'The Godfather: Part II', year: 1974 },
+	{ title: 'The Dark Knight', year: 2008 },
+	{ title: '12 Angry Men', year: 1957 }
+];
 
 export default Orders;

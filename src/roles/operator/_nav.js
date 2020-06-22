@@ -16,6 +16,10 @@ export default {
 				{
 					name: 'All orders',
 					url: '/orders'
+				},
+				{
+					name: 'All orders2',
+					url: '/orders2'
 				}
 				// 	{
 				// 		name: 'Dashboard',
