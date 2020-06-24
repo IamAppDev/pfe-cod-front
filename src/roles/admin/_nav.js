@@ -33,12 +33,12 @@ export default {
 			name: 'Sales Channels',
 			url: '/salesChannels',
 			icon: 'icon-layers'
-		},
-		{
-			name: 'Messages',
-			url: '/messages',
-			icon: 'icon-speech'
 		}
+		// {
+		// 	name: 'Messages',
+		// 	url: '/messages',
+		// 	icon: 'icon-speech'
+		// }
 		// {
 		// 	name: 'Delivery Services',
 		// 	url: '/deliveryServices',

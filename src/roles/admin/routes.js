@@ -15,8 +15,8 @@ const adminRoutes = [
 	{ path: '/stock', name: 'Stock', component: Stock },
 	{ path: '/customers', name: 'Customers', component: Customers },
 	{ path: '/orders', name: 'Orders', component: Orders },
-	{ path: '/salesChannels', name: 'SalesChannels', component: SalesChannels },
-	{ path: '/messages', name: 'Messages', component: Messages }
+	{ path: '/salesChannels', name: 'SalesChannels', component: SalesChannels }
+	// { path: '/messages', name: 'Messages', component: Messages }
 	// { path: '/deliveryServices', name: 'DeliveryServices', component: DeliveryServices }
 ];
 

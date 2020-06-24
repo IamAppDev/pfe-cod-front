@@ -13,10 +13,10 @@ export default {
 					name: 'Add New Order',
 					url: '/orders/add'
 				},
-				{
-					name: 'All orders',
-					url: '/orders'
-				},
+				// {
+				// 	name: 'All orders',
+				// 	url: '/orders'
+				// },
 				{
 					name: 'All orders2',
 					url: '/orders2'
